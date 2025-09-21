@@ -30,7 +30,7 @@ class SnakeGame {
       this.eventEmitter = new EventEmitter<GameEvents>();
       this.gameEngine = new GameEngine(this.gameConfig, this.scoreManager, this.eventEmitter);
       this.inputHandler = new InputHandler();
-      this.renderer = new CanvasRenderer('gameCanvas');
+      this.renderer = new CanvasRenderer('gameCanvas', this.gameConfig.gridSize);
 
       this.setupEventListeners();
       this.setupUI();
@@ -50,6 +50,12 @@ class SnakeGame {
       this.updateScoreDisplay();
       this.updateUI(); // Ensure UI state is correct on initialization
       this.showGameContainer();
+
+      // Resize canvas after container is shown
+      setTimeout(() => {
+        this.handleResize();
+      }, 100);
+
       this.isInitialized = true;
     } catch (error) {
       this.handleError('Failed to initialize game components', error);

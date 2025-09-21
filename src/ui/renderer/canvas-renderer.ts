@@ -8,12 +8,15 @@ import { IRenderer } from '../../core/interfaces/services.types';
 export class CanvasRenderer implements IRenderer {
   private readonly canvas: HTMLCanvasElement;
   private readonly ctx: CanvasRenderingContext2D;
-  private readonly cellSize: number = 20;
   private readonly padding: number = 2;
+  private readonly gridSize: number;
+  private cellSize: number = 20; // Will be calculated dynamically
   private animationId: number | null = null;
   private isRendering = false;
 
-  constructor(canvasId: string) {
+  constructor(canvasId: string, gridSize: number = 20) {
+    this.gridSize = gridSize;
+
     const canvasElement = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvasElement) {
       throw new Error(`Canvas element with id '${canvasId}' not found`);
@@ -90,11 +93,18 @@ export class CanvasRenderer implements IRenderer {
    */
   public resize(width: number, height: number): void {
     const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = width * dpr;
-    this.canvas.height = height * dpr;
-    this.canvas.style.width = `${width}px`;
-    this.canvas.style.height = `${height}px`;
+
+    // Use the smaller dimension to maintain square aspect ratio
+    const actualSize = Math.min(width, height);
+
+    this.canvas.width = actualSize * dpr;
+    this.canvas.height = actualSize * dpr;
+    this.canvas.style.width = `${actualSize}px`;
+    this.canvas.style.height = `${actualSize}px`;
     this.ctx.scale(dpr, dpr);
+
+    // Calculate cell size to fill the entire canvas with minimal padding
+    this.cellSize = Math.floor(actualSize / this.gridSize) - this.padding;
   }
 
   /**
@@ -104,19 +114,30 @@ export class CanvasRenderer implements IRenderer {
     this.ctx.strokeStyle = '#333';
     this.ctx.lineWidth = 1;
 
-    for (let i = 0; i <= this.canvas.width / (this.cellSize + this.padding); i++) {
-      const x = i * (this.cellSize + this.padding);
+    // Calculate cell spacing (cell size + padding)
+    const cellSpacing = this.cellSize + this.padding;
+
+    // Calculate the total grid size and center it
+    const totalGridWidth = this.gridSize * cellSpacing;
+    const totalGridHeight = this.gridSize * cellSpacing;
+    const offsetX = (this.canvas.width - totalGridWidth) / 2;
+    const offsetY = (this.canvas.height - totalGridHeight) / 2;
+
+    // Draw vertical lines
+    for (let i = 0; i <= this.gridSize; i++) {
+      const x = offsetX + i * cellSpacing;
       this.ctx.beginPath();
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.canvas.height);
+      this.ctx.moveTo(x, offsetY);
+      this.ctx.lineTo(x, offsetY + totalGridHeight);
       this.ctx.stroke();
     }
 
-    for (let i = 0; i <= this.canvas.height / (this.cellSize + this.padding); i++) {
-      const y = i * (this.cellSize + this.padding);
+    // Draw horizontal lines
+    for (let i = 0; i <= this.gridSize; i++) {
+      const y = offsetY + i * cellSpacing;
       this.ctx.beginPath();
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.canvas.width, y);
+      this.ctx.moveTo(offsetX, y);
+      this.ctx.lineTo(offsetX + totalGridWidth, y);
       this.ctx.stroke();
     }
   }
@@ -138,8 +159,7 @@ export class CanvasRenderer implements IRenderer {
    * Draw snake head
    */
   private drawSnakeHead(position: any): void {
-    const x = position.x * (this.cellSize + this.padding);
-    const y = position.y * (this.cellSize + this.padding);
+    const { x, y } = this.getCellPosition(position.x, position.y);
 
     // Head background
     this.ctx.fillStyle = '#4CAF50';
@@ -160,8 +180,7 @@ export class CanvasRenderer implements IRenderer {
    * Draw snake body segment
    */
   private drawSnakeBody(position: any, index: number): void {
-    const x = position.x * (this.cellSize + this.padding);
-    const y = position.y * (this.cellSize + this.padding);
+    const { x, y } = this.getCellPosition(position.x, position.y);
 
     // Body color with gradient
     const alpha = Math.max(0.6, 1 - index * 0.1);
@@ -173,8 +192,7 @@ export class CanvasRenderer implements IRenderer {
    * Draw food
    */
   private drawFood(food: any): void {
-    const x = food.position.x * (this.cellSize + this.padding);
-    const y = food.position.y * (this.cellSize + this.padding);
+    const { x, y } = this.getCellPosition(food.position.x, food.position.y);
     const centerX = x + this.cellSize / 2;
     const centerY = y + this.cellSize / 2;
     const radius = this.cellSize / 2 - 2;
@@ -196,6 +214,22 @@ export class CanvasRenderer implements IRenderer {
       this.ctx.fillStyle = '#FF9800';
       this.drawStar(centerX, centerY, radius);
     }
+  }
+
+  /**
+   * Get the pixel position for a grid cell, accounting for centering
+   */
+  private getCellPosition(gridX: number, gridY: number): { x: number; y: number } {
+    const cellSpacing = this.cellSize + this.padding;
+    const totalGridWidth = this.gridSize * cellSpacing;
+    const totalGridHeight = this.gridSize * cellSpacing;
+    const offsetX = (this.canvas.width - totalGridWidth) / 2;
+    const offsetY = (this.canvas.height - totalGridHeight) / 2;
+
+    const x = offsetX + gridX * cellSpacing + this.padding;
+    const y = offsetY + gridY * cellSpacing + this.padding;
+
+    return { x, y };
   }
 
   /**
@@ -229,10 +263,10 @@ export class CanvasRenderer implements IRenderer {
   private drawScore(score: ScoreData): void {
     this.ctx.fillStyle = '#FFF';
     this.ctx.font = 'bold 16px Arial';
-    this.ctx.fillText(`Score: ${score.currentScore}`, 10, 10);
-    this.ctx.fillText(`High: ${score.highScore}`, 10, 30);
-    this.ctx.fillText(`Length: ${score.snakeLength}`, 10, 50);
-    this.ctx.fillText(`Time: ${score.gameTime}s`, 10, 70);
+    this.ctx.fillText(`Score: ${score.currentScore}`, 10, 30);
+    this.ctx.fillText(`High: ${score.highScore}`, 10, 50);
+    this.ctx.fillText(`Length: ${score.snakeLength}`, 10, 70);
+    this.ctx.fillText(`Time: ${score.gameTime}s`, 10, 90);
   }
 
   /**

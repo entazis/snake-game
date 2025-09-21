@@ -45,19 +45,12 @@
             max-height: 90vh;
             min-width: 300px;
             min-height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             aspect-ratio: 1;
         }
 
         #gameCanvas {
             display: block;
             border-radius: 7px;
-            width: 100%;
-            height: 100%;
-            max-width: 100%;
-            max-height: 100%;
         }
 
         .game-controls {
@@ -342,13 +335,6 @@
     </div>
 
     <div id="gameContainer" class="game-container" style="display: none;">
-        <div class="score-display" id="scoreDisplay">
-            <div>Score: <span id="currentScore">0</span></div>
-            <div>High: <span id="highScore">0</span></div>
-            <div>Length: <span id="snakeLength">3</span></div>
-            <div>Time: <span id="gameTime">0</span>s</div>
-        </div>
-        
         <div class="game-canvas-container">
             <canvas id="gameCanvas"></canvas>
         </div>
@@ -395,23 +381,6 @@
     </div>
 
     <script>
-        // Make canvas responsive
-        function resizeCanvas() {
-            const canvas = document.getElementById('gameCanvas');
-            const container = canvas.parentElement;
-            
-            if (canvas && container) {
-                const containerRect = container.getBoundingClientRect();
-                const borderWidth = 6; // Account for border
-                const maxSize = Math.min(containerRect.width - borderWidth, containerRect.height - borderWidth);
-                const size = Math.max(200, Math.min(maxSize, 600)); // Min 200px, Max 600px
-                
-                canvas.width = size;
-                canvas.height = size;
-                canvas.style.width = size + 'px';
-                canvas.style.height = size + 'px';
-            }
-        }
 
         // Handle instructions toggle
         function toggleInstructions() {
@@ -433,9 +402,6 @@
 
         // Initialize event listeners
         function initializeUI() {
-            // Resize canvas
-            resizeCanvas();
-            
             // Instructions toggle
             const instructionsToggle = document.getElementById('instructionsToggle');
             if (instructionsToggle) {
@@ -443,9 +409,8 @@
             }
         }
 
-        // Resize on load and window resize
+        // Initialize on load
         window.addEventListener('load', initializeUI);
-        window.addEventListener('resize', resizeCanvas);
     </script>
     <script type="module" src="/src/main.ts"></script>
 </body>
