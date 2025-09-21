@@ -4,7 +4,7 @@
 
 import { createGameConfig, defaultGameSettings } from './config/game-config';
 import { GameEvents } from './core/interfaces/events.types';
-import { Direction, GameState } from './core/interfaces/game.types';
+import { GameState } from './core/interfaces/game.types';
 import { GameEngine } from './core/services/game-engine';
 import { ScoreManager } from './core/services/score-manager';
 import { Storage } from './core/services/storage';
@@ -46,14 +46,14 @@ class SnakeGame {
   private async initialize(): Promise<void> {
     try {
       this.renderer.initialize();
-      this.renderer.showMainMenu();
       this.updateScoreDisplay();
       this.updateUI(); // Ensure UI state is correct on initialization
       this.showGameContainer();
 
-      // Resize canvas after container is shown
+      // Resize canvas after container is shown, then show main menu
       setTimeout(() => {
         this.handleResize();
+        this.renderer.showMainMenu();
       }, 100);
 
       this.isInitialized = true;
@@ -122,58 +122,10 @@ class SnakeGame {
    * Setup UI event listeners
    */
   private setupUI(): void {
-    // Desktop controls
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const resetBtn = document.getElementById('resetBtn');
-
-    startBtn?.addEventListener('click', () => this.startGame());
-    pauseBtn?.addEventListener('click', () => this.gameEngine.togglePause());
-    resetBtn?.addEventListener('click', () => this.resetGame());
-
-    // Mobile controls
-    const mobilePauseBtn = document.getElementById('mobilePauseBtn');
-    mobilePauseBtn?.addEventListener('click', () => this.gameEngine.togglePause());
-
-    const directionBtns = document.querySelectorAll('[data-direction]');
-    directionBtns.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const direction = (e.target as HTMLElement).dataset.direction;
-        if (direction) {
-          this.handleMobileDirection(direction);
-        }
-      });
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyS' && e.ctrlKey) {
-        e.preventDefault();
-        this.startGame();
-      }
-    });
-
     // Window resize
     window.addEventListener('resize', () => {
       this.handleResize();
     });
-  }
-
-  /**
-   * Handle mobile direction input
-   */
-  private handleMobileDirection(direction: string): void {
-    const directionMap: Record<string, Direction> = {
-      up: Direction.UP,
-      down: Direction.DOWN,
-      left: Direction.LEFT,
-      right: Direction.RIGHT,
-    };
-
-    const mappedDirection = directionMap[direction];
-    if (mappedDirection) {
-      this.gameEngine.changeDirection(mappedDirection);
-    }
   }
 
   /**
@@ -210,23 +162,7 @@ class SnakeGame {
    */
   private updateUI(): void {
     const gameState = this.gameEngine.getState();
-    const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
-    const pauseBtn = document.getElementById('pauseBtn') as HTMLButtonElement;
-    const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
     const scoreDisplay = document.getElementById('scoreDisplay');
-
-    if (startBtn) {
-      startBtn.disabled = gameState === GameState.PLAYING || gameState === GameState.PAUSED;
-    }
-
-    if (pauseBtn) {
-      pauseBtn.disabled = gameState !== GameState.PLAYING && gameState !== GameState.PAUSED;
-      pauseBtn.textContent = gameState === GameState.PAUSED ? 'Resume' : 'Pause';
-    }
-
-    if (resetBtn) {
-      resetBtn.disabled = gameState === GameState.MENU;
-    }
 
     // Show/hide score display based on game state
     if (scoreDisplay) {
