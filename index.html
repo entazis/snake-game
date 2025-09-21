@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .game-subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .game-canvas-container {
+            position: relative;
+            border: 3px solid #4CAF50;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+            background: #1a1a1a;
+        }
+
+        #gameCanvas {
+            display: block;
+            border-radius: 7px;
+        }
+
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #2196F3, #64B5F6);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #F44336, #EF5350);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+        }
+
+        .instructions {
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        .instructions h3 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions li {
+            margin: 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .instructions li:last-child {
+            border-bottom: none;
+        }
+
+        .score-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .mobile-controls {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .mobile-controls .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 10px;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .mobile-btn {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #4CAF50;
+            border-radius: 50%;
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-btn:hover {
+            background: rgba(76, 175, 80, 0.3);
+            transform: scale(1.1);
+        }
+
+        .mobile-btn:active {
+            transform: scale(0.95);
+        }
+
+        .up-btn { grid-column: 2; grid-row: 1; }
+        .left-btn { grid-column: 1; grid-row: 2; }
+        .center-btn { grid-column: 2; grid-row: 2; }
+        .right-btn { grid-column: 3; grid-row: 2; }
+        .down-btn { grid-column: 2; grid-row: 3; }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .mobile-controls {
+                display: block;
+            }
+            
+            .instructions {
+                font-size: 14px;
+                padding: 0 20px;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-title {
+                font-size: 1.5rem;
+            }
+            
+            .game-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-size: 1.5rem;
+            color: #4CAF50;
+        }
+
+        .error {
+            color: #F44336;
+            text-align: center;
+            padding: 20px;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid #F44336;
+            border-radius: 8px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        Loading Snake Game...
+    </div>
+
+    <div id="gameContainer" class="game-container" style="display: none;">
+        <div class="game-header">
+            <h1 class="game-title">Snake Game</h1>
+            <p class="game-subtitle">Classic Snake with Modern Twist</p>
+        </div>
+
+        <div class="game-canvas-container">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div class="score-display" id="scoreDisplay">
+                <div>Score: <span id="currentScore">0</span></div>
+                <div>High: <span id="highScore">0</span></div>
+                <div>Length: <span id="snakeLength">3</span></div>
+                <div>Time: <span id="gameTime">0</span>s</div>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <div class="control-buttons">
+                <button id="startBtn" class="btn btn-primary">Start Game</button>
+                <button id="pauseBtn" class="btn btn-secondary" disabled>Pause</button>
+                <button id="resetBtn" class="btn btn-danger">Reset</button>
+            </div>
+
+            <div class="mobile-controls">
+                <div class="control-grid">
+                    <button class="mobile-btn up-btn" data-direction="up">↑</button>
+                    <button class="mobile-btn left-btn" data-direction="left">←</button>
+                    <button class="mobile-btn center-btn" id="mobilePauseBtn">⏸</button>
+                    <button class="mobile-btn right-btn" data-direction="right">→</button>
+                    <button class="mobile-btn down-btn" data-direction="down">↓</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Play</h3>
+            <ul>
+                <li>Use arrow keys or swipe to control the snake</li>
+                <li>Eat red food to grow and score points</li>
+                <li>Eat orange stars for bonus points</li>
+                <li>Don't hit walls or yourself</li>
+                <li>Press SPACE to pause/resume</li>
+                <li>Press ENTER to restart</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="errorContainer" class="error" style="display: none;">
+        <h3>Error Loading Game</h3>
+        <p id="errorMessage">Something went wrong. Please refresh the page.</p>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
