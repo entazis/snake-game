@@ -60,6 +60,14 @@
             gap: 15px;
         }
 
+        .game-hint {
+            color: #888;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 10px;
+            opacity: 0.7;
+        }
+
         .control-buttons {
             display: flex;
             gap: 10px;
@@ -109,74 +117,6 @@
             box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
         }
 
-        .instructions-toggle {
-            background: none;
-            border: 1px solid #4CAF50;
-            color: #4CAF50;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .instructions-toggle:hover {
-            background: rgba(76, 175, 80, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .instructions {
-            text-align: center;
-            max-width: 600px;
-            line-height: 1.4;
-            color: #ccc;
-            font-size: 0.85rem;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            border: 1px solid #333;
-            display: none;
-            transition: all 0.3s ease;
-        }
-
-        .instructions.expanded {
-            display: block;
-        }
-
-        .instructions h3 {
-            color: #4CAF50;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-
-        .instructions ul {
-            list-style: none;
-            padding: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 8px;
-        }
-
-        .instructions li {
-            margin: 5px 0;
-            padding: 5px 0;
-            border-bottom: 1px solid #333;
-        }
-
-        .instructions li:last-child {
-            border-bottom: none;
-        }
-
-        .carrot {
-            transition: transform 0.3s ease;
-        }
-
-        .carrot.expanded {
-            transform: rotate(180deg);
-        }
 
         .score-display {
             background: rgba(0, 0, 0, 0.7);
@@ -247,15 +187,6 @@
                 display: block;
             }
             
-            .instructions {
-                font-size: 0.75rem;
-                max-width: 100%;
-            }
-            
-            .instructions ul {
-                grid-template-columns: 1fr;
-                gap: 5px;
-            }
             
             .control-buttons {
                 flex-direction: row;
@@ -286,9 +217,6 @@
         }
 
         @media (max-width: 480px) {
-            .instructions {
-                font-size: 0.7rem;
-            }
             
             .btn {
                 padding: 6px 12px;
@@ -341,37 +269,25 @@
 
         <div class="game-controls">
             <div class="control-buttons">
-                <button id="startBtn" class="btn btn-primary">Start Game</button>
-                <button id="pauseBtn" class="btn btn-secondary" disabled>Pause</button>
-                <button id="resetBtn" class="btn btn-danger">Reset</button>
+                <button id="startBtn" class="btn btn-primary">▶️ Start</button>
+                <button id="pauseBtn" class="btn btn-secondary" disabled>⏸️ Pause</button>
+                <button id="resetBtn" class="btn btn-danger">🔄 Reset</button>
             </div>
 
             <div class="mobile-controls">
                 <div class="control-grid">
-                    <button class="mobile-btn up-btn" data-direction="up">↑</button>
-                    <button class="mobile-btn left-btn" data-direction="left">←</button>
-                    <button class="mobile-btn center-btn" id="mobilePauseBtn">⏸</button>
-                    <button class="mobile-btn right-btn" data-direction="right">→</button>
-                    <button class="mobile-btn down-btn" data-direction="down">↓</button>
+                    <button class="mobile-btn up-btn" data-direction="up" title="Move Up">↑</button>
+                    <button class="mobile-btn left-btn" data-direction="left" title="Move Left">←</button>
+                    <button class="mobile-btn center-btn" id="mobilePauseBtn" title="Pause/Resume">⏸</button>
+                    <button class="mobile-btn right-btn" data-direction="right" title="Move Right">→</button>
+                    <button class="mobile-btn down-btn" data-direction="down" title="Move Down">↓</button>
                 </div>
             </div>
 
-            <button id="instructionsToggle" class="instructions-toggle">
-                How to Play
-                <span class="carrot">▼</span>
-            </button>
-        </div>
+            <div class="game-hint">
+                Use arrow keys or tap the directional buttons to control the snake
+            </div>
 
-        <div id="instructions" class="instructions">
-            <h3>How to Play</h3>
-            <ul>
-                <li>Use arrow keys or swipe to control the snake</li>
-                <li>Eat red food to grow and score points</li>
-                <li>Eat orange stars for bonus points</li>
-                <li>Don't hit walls or yourself</li>
-                <li>Press SPACE to pause/resume</li>
-                <li>Press ENTER to restart</li>
-            </ul>
         </div>
     </div>
 
@@ -382,31 +298,9 @@
 
     <script>
 
-        // Handle instructions toggle
-        function toggleInstructions() {
-            const instructions = document.getElementById('instructions');
-            const carrot = document.querySelector('.carrot');
-            const toggle = document.getElementById('instructionsToggle');
-            
-            if (instructions && carrot && toggle) {
-                instructions.classList.toggle('expanded');
-                carrot.classList.toggle('expanded');
-                
-                if (instructions.classList.contains('expanded')) {
-                    toggle.innerHTML = 'How to Play <span class="carrot expanded">▲</span>';
-                } else {
-                    toggle.innerHTML = 'How to Play <span class="carrot">▼</span>';
-                }
-            }
-        }
-
         // Initialize event listeners
         function initializeUI() {
-            // Instructions toggle
-            const instructionsToggle = document.getElementById('instructionsToggle');
-            if (instructionsToggle) {
-                instructionsToggle.addEventListener('click', toggleInstructions);
-            }
+            // UI initialization can be added here if needed
         }
 
         // Initialize on load
