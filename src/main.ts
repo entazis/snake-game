@@ -48,6 +48,7 @@ class SnakeGame {
       this.renderer.initialize();
       this.renderer.showMainMenu();
       this.updateScoreDisplay();
+      this.updateUI(); // Ensure UI state is correct on initialization
       this.showGameContainer();
       this.isInitialized = true;
     } catch (error) {
@@ -79,6 +80,8 @@ class SnakeGame {
     // Game events
     this.eventEmitter.on('game:start', () => {
       this.renderer.startRendering();
+      // Render initial game state
+      this.renderer.render(this.gameEngine.getRenderData());
       this.updateUI();
     });
 
@@ -204,6 +207,7 @@ class SnakeGame {
     const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
     const pauseBtn = document.getElementById('pauseBtn') as HTMLButtonElement;
     const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
+    const scoreDisplay = document.getElementById('scoreDisplay');
 
     if (startBtn) {
       startBtn.disabled = gameState === GameState.PLAYING || gameState === GameState.PAUSED;
@@ -216,6 +220,15 @@ class SnakeGame {
 
     if (resetBtn) {
       resetBtn.disabled = gameState === GameState.MENU;
+    }
+
+    // Show/hide score display based on game state
+    if (scoreDisplay) {
+      if (gameState === GameState.PLAYING || gameState === GameState.PAUSED) {
+        scoreDisplay.classList.add('visible');
+      } else {
+        scoreDisplay.classList.remove('visible');
+      }
     }
   }
 
