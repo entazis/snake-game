@@ -75,10 +75,6 @@ export class CanvasRenderer implements IRenderer {
     this.drawFood(gameData.food);
     this.drawScore(gameData.score);
     this.drawGameState(gameData.gameState);
-
-    // Debug: Draw a simple test rectangle
-    this.ctx.fillStyle = '#FF0000';
-    this.ctx.fillRect(10, 10, 50, 50);
   }
 
   /**

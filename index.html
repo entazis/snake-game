@@ -18,37 +18,20 @@
             overflow: hidden;
             height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 20px;
-        }
-
-        .game-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .game-title {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #4CAF50, #8BC34A);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .game-subtitle {
-            font-size: 1.2rem;
-            color: #ccc;
-            margin-bottom: 20px;
+            height: 100vh;
+            max-width: 100%;
+            width: 100%;
         }
 
         .game-canvas-container {
@@ -57,11 +40,24 @@
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
             background: #1a1a1a;
+            flex: 1;
+            max-width: 90vh;
+            max-height: 90vh;
+            min-width: 300px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
         }
 
         #gameCanvas {
             display: block;
             border-radius: 7px;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .game-controls {
@@ -69,7 +65,6 @@
             flex-direction: column;
             align-items: center;
             gap: 15px;
-            margin-top: 20px;
         }
 
         .control-buttons {
@@ -121,27 +116,60 @@
             box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
         }
 
+        .instructions-toggle {
+            background: none;
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .instructions-toggle:hover {
+            background: rgba(76, 175, 80, 0.1);
+            transform: translateY(-1px);
+        }
+
         .instructions {
             text-align: center;
             max-width: 600px;
-            line-height: 1.6;
+            line-height: 1.4;
             color: #ccc;
+            font-size: 0.85rem;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid #333;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .instructions.expanded {
+            display: block;
         }
 
         .instructions h3 {
             color: #4CAF50;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-size: 1rem;
         }
 
         .instructions ul {
             list-style: none;
             padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
         }
 
         .instructions li {
-            margin: 8px 0;
-            padding: 8px 0;
+            margin: 5px 0;
+            padding: 5px 0;
             border-bottom: 1px solid #333;
         }
 
@@ -149,19 +177,27 @@
             border-bottom: none;
         }
 
+        .carrot {
+            transition: transform 0.3s ease;
+        }
+
+        .carrot.expanded {
+            transform: rotate(180deg);
+        }
+
         .score-display {
-            position: absolute;
-            top: 10px;
-            left: 10px;
             background: rgba(0, 0, 0, 0.7);
-            padding: 10px 15px;
+            padding: 15px 20px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             color: #4CAF50;
-            border: 1px solid #4CAF50;
+            border: 2px solid #4CAF50;
             display: none;
             z-index: 10;
+            margin-bottom: 20px;
+            text-align: center;
+            min-width: 200px;
         }
 
         .score-display.visible {
@@ -214,37 +250,69 @@
         .down-btn { grid-column: 2; grid-row: 3; }
 
         @media (max-width: 768px) {
-            .game-title {
-                font-size: 2rem;
-            }
-            
             .mobile-controls {
                 display: block;
             }
             
             .instructions {
-                font-size: 14px;
-                padding: 0 20px;
+                font-size: 0.75rem;
+                max-width: 100%;
+            }
+            
+            .instructions ul {
+                grid-template-columns: 1fr;
+                gap: 5px;
             }
             
             .control-buttons {
-                flex-direction: column;
+                flex-direction: row;
+                flex-wrap: wrap;
                 width: 100%;
-                max-width: 300px;
+                max-width: 100%;
+                justify-content: center;
             }
             
             .btn {
-                width: 100%;
+                padding: 8px 16px;
+                font-size: 14px;
+                flex: 1;
+                min-width: 80px;
+            }
+            
+            .game-container {
+                gap: 15px;
+                padding: 10px;
+            }
+            
+            .game-canvas-container {
+                max-width: 95vw;
+                max-height: 95vw;
+                min-width: 250px;
+                min-height: 250px;
             }
         }
 
         @media (max-width: 480px) {
-            .game-title {
-                font-size: 1.5rem;
+            .instructions {
+                font-size: 0.7rem;
             }
             
-            .game-subtitle {
-                font-size: 1rem;
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .mobile-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .game-canvas-container {
+                max-width: 90vw;
+                max-height: 90vw;
+                min-width: 200px;
+                min-height: 200px;
             }
         }
 
@@ -274,19 +342,15 @@
     </div>
 
     <div id="gameContainer" class="game-container" style="display: none;">
-        <div class="game-header">
-            <h1 class="game-title">Snake Game</h1>
-            <p class="game-subtitle">Classic Snake with Modern Twist</p>
+        <div class="score-display" id="scoreDisplay">
+            <div>Score: <span id="currentScore">0</span></div>
+            <div>High: <span id="highScore">0</span></div>
+            <div>Length: <span id="snakeLength">3</span></div>
+            <div>Time: <span id="gameTime">0</span>s</div>
         </div>
-
+        
         <div class="game-canvas-container">
-            <canvas id="gameCanvas" width="400" height="400"></canvas>
-            <div class="score-display" id="scoreDisplay">
-                <div>Score: <span id="currentScore">0</span></div>
-                <div>High: <span id="highScore">0</span></div>
-                <div>Length: <span id="snakeLength">3</span></div>
-                <div>Time: <span id="gameTime">0</span>s</div>
-            </div>
+            <canvas id="gameCanvas"></canvas>
         </div>
 
         <div class="game-controls">
@@ -305,9 +369,14 @@
                     <button class="mobile-btn down-btn" data-direction="down">↓</button>
                 </div>
             </div>
+
+            <button id="instructionsToggle" class="instructions-toggle">
+                How to Play
+                <span class="carrot">▼</span>
+            </button>
         </div>
 
-        <div class="instructions">
+        <div id="instructions" class="instructions">
             <h3>How to Play</h3>
             <ul>
                 <li>Use arrow keys or swipe to control the snake</li>
@@ -325,6 +394,59 @@
         <p id="errorMessage">Something went wrong. Please refresh the page.</p>
     </div>
 
+    <script>
+        // Make canvas responsive
+        function resizeCanvas() {
+            const canvas = document.getElementById('gameCanvas');
+            const container = canvas.parentElement;
+            
+            if (canvas && container) {
+                const containerRect = container.getBoundingClientRect();
+                const borderWidth = 6; // Account for border
+                const maxSize = Math.min(containerRect.width - borderWidth, containerRect.height - borderWidth);
+                const size = Math.max(200, Math.min(maxSize, 600)); // Min 200px, Max 600px
+                
+                canvas.width = size;
+                canvas.height = size;
+                canvas.style.width = size + 'px';
+                canvas.style.height = size + 'px';
+            }
+        }
+
+        // Handle instructions toggle
+        function toggleInstructions() {
+            const instructions = document.getElementById('instructions');
+            const carrot = document.querySelector('.carrot');
+            const toggle = document.getElementById('instructionsToggle');
+            
+            if (instructions && carrot && toggle) {
+                instructions.classList.toggle('expanded');
+                carrot.classList.toggle('expanded');
+                
+                if (instructions.classList.contains('expanded')) {
+                    toggle.innerHTML = 'How to Play <span class="carrot expanded">▲</span>';
+                } else {
+                    toggle.innerHTML = 'How to Play <span class="carrot">▼</span>';
+                }
+            }
+        }
+
+        // Initialize event listeners
+        function initializeUI() {
+            // Resize canvas
+            resizeCanvas();
+            
+            // Instructions toggle
+            const instructionsToggle = document.getElementById('instructionsToggle');
+            if (instructionsToggle) {
+                instructionsToggle.addEventListener('click', toggleInstructions);
+            }
+        }
+
+        // Resize on load and window resize
+        window.addEventListener('load', initializeUI);
+        window.addEventListener('resize', resizeCanvas);
+    </script>
     <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
