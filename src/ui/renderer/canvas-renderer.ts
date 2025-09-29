@@ -297,6 +297,9 @@ export class CanvasRenderer implements IRenderer {
     const canvasWidth = this.canvas.width / (window.devicePixelRatio || 1);
     const canvasHeight = this.canvas.height / (window.devicePixelRatio || 1);
 
+    // Detect if we're on a mobile device
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     this.ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
@@ -306,7 +309,12 @@ export class CanvasRenderer implements IRenderer {
     this.ctx.fillText('PAUSED', canvasWidth / 2, canvasHeight / 2 - 20);
 
     this.ctx.font = '16px Arial';
-    this.ctx.fillText('Press SPACE to resume', canvasWidth / 2, canvasHeight / 2 + 20);
+
+    if (isMobile) {
+      this.ctx.fillText('Tap to resume', canvasWidth / 2, canvasHeight / 2 + 20);
+    } else {
+      this.ctx.fillText('Press SPACE to resume', canvasWidth / 2, canvasHeight / 2 + 20);
+    }
 
     this.ctx.textAlign = 'left';
   }
@@ -319,6 +327,9 @@ export class CanvasRenderer implements IRenderer {
     const canvasWidth = this.canvas.width / (window.devicePixelRatio || 1);
     const canvasHeight = this.canvas.height / (window.devicePixelRatio || 1);
 
+    // Detect if we're on a mobile device
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
     this.ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
@@ -329,7 +340,12 @@ export class CanvasRenderer implements IRenderer {
 
     this.ctx.fillStyle = '#FFF';
     this.ctx.font = '18px Arial';
-    this.ctx.fillText('Press ENTER to restart', canvasWidth / 2, canvasHeight / 2 + 20);
+
+    if (isMobile) {
+      this.ctx.fillText('Tap to restart', canvasWidth / 2, canvasHeight / 2 + 20);
+    } else {
+      this.ctx.fillText('Press ENTER to restart', canvasWidth / 2, canvasHeight / 2 + 20);
+    }
 
     this.ctx.textAlign = 'left';
   }
@@ -344,15 +360,27 @@ export class CanvasRenderer implements IRenderer {
     const canvasWidth = this.canvas.width / (window.devicePixelRatio || 1);
     const canvasHeight = this.canvas.height / (window.devicePixelRatio || 1);
 
+    // Detect if we're on a mobile device
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
     this.ctx.fillStyle = '#FFF';
     this.ctx.font = 'bold 48px Arial';
     this.ctx.textAlign = 'center';
     this.ctx.fillText('SNAKE GAME', canvasWidth / 2, canvasHeight / 2 - 60);
 
     this.ctx.font = '20px Arial';
-    this.ctx.fillText('Press ENTER to start', canvasWidth / 2, canvasHeight / 2 - 20);
-    this.ctx.fillText('Use arrow keys to move', canvasWidth / 2, canvasHeight / 2 + 10);
-    this.ctx.fillText('Press SPACE to pause', canvasWidth / 2, canvasHeight / 2 + 40);
+
+    if (isMobile) {
+      // Mobile instructions
+      this.ctx.fillText('Tap to start', canvasWidth / 2, canvasHeight / 2 - 20);
+      this.ctx.fillText('Swipe to move', canvasWidth / 2, canvasHeight / 2 + 10);
+      this.ctx.fillText('Tap to pause', canvasWidth / 2, canvasHeight / 2 + 40);
+    } else {
+      // Desktop instructions
+      this.ctx.fillText('Press ENTER to start', canvasWidth / 2, canvasHeight / 2 - 20);
+      this.ctx.fillText('Use arrow keys to move', canvasWidth / 2, canvasHeight / 2 + 10);
+      this.ctx.fillText('Press SPACE to pause', canvasWidth / 2, canvasHeight / 2 + 40);
+    }
 
     this.ctx.textAlign = 'left';
   }
