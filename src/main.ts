@@ -9,12 +9,14 @@ import { GameEngine } from './core/services/game-engine';
 import { ScoreManager } from './core/services/score-manager';
 import { Storage } from './core/services/storage';
 import { InputHandler } from './ui/input/input-handler';
+import { MobileControls } from './ui/input/mobile-controls';
 import { CanvasRenderer } from './ui/renderer/canvas-renderer';
 import { EventEmitter } from './utils/event-emitter';
 
 class SnakeGame {
   private readonly gameEngine!: GameEngine;
   private readonly inputHandler!: InputHandler;
+  private readonly mobileControls!: MobileControls;
   private readonly renderer!: CanvasRenderer;
   private readonly eventEmitter!: EventEmitter<GameEvents>;
   private readonly storage!: Storage;
@@ -30,6 +32,7 @@ class SnakeGame {
       this.eventEmitter = new EventEmitter<GameEvents>();
       this.gameEngine = new GameEngine(this.gameConfig, this.scoreManager, this.eventEmitter);
       this.inputHandler = new InputHandler();
+      this.mobileControls = new MobileControls();
       this.renderer = new CanvasRenderer('gameCanvas', this.gameConfig.gridSize);
 
       this.setupEventListeners();
@@ -49,6 +52,11 @@ class SnakeGame {
       this.updateScoreDisplay();
       this.updateUI(); // Ensure UI state is correct on initialization
       this.showGameContainer();
+
+      // Show mobile controls if on touch device
+      if (this.inputHandler.isTouchDeviceSupported()) {
+        this.mobileControls.show();
+      }
 
       // Resize canvas after container is shown, then show main menu
       setTimeout(() => {
@@ -80,6 +88,23 @@ class SnakeGame {
     });
 
     this.inputHandler.onGameReset(() => {
+      this.resetGame();
+    });
+
+    // Mobile controls events
+    this.mobileControls.onDirectionChange((direction) => {
+      this.gameEngine.changeDirection(direction);
+    });
+
+    this.mobileControls.onPauseToggle(() => {
+      this.gameEngine.togglePause();
+    });
+
+    this.mobileControls.onGameStart(() => {
+      this.startGame();
+    });
+
+    this.mobileControls.onGameReset(() => {
       this.resetGame();
     });
 
@@ -254,6 +279,7 @@ class SnakeGame {
     try {
       this.gameEngine.stop();
       this.inputHandler.destroy();
+      this.mobileControls.destroy();
       this.renderer.destroy();
       this.eventEmitter.removeAllListeners();
     } catch (error) {
