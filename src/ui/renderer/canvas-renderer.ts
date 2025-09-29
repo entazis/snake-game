@@ -101,6 +101,15 @@ export class CanvasRenderer implements IRenderer {
     this.canvas.height = actualSize * dpr;
     this.canvas.style.width = `${actualSize}px`;
     this.canvas.style.height = `${actualSize}px`;
+
+    // Reset the context transformation matrix
+    if (this.ctx.setTransform) {
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    } else {
+      // Fallback for environments that don't support setTransform
+      this.ctx.save();
+      this.ctx.restore();
+    }
     this.ctx.scale(dpr, dpr);
 
     // Calculate cell size to fill the entire canvas with minimal padding
@@ -284,16 +293,20 @@ export class CanvasRenderer implements IRenderer {
    * Draw pause overlay
    */
   private drawPauseOverlay(): void {
+    // Get the actual canvas dimensions (accounting for device pixel ratio)
+    const canvasWidth = this.canvas.width / (window.devicePixelRatio || 1);
+    const canvasHeight = this.canvas.height / (window.devicePixelRatio || 1);
+
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     this.ctx.fillStyle = '#FFF';
     this.ctx.font = 'bold 32px Arial';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('PAUSED', this.canvas.width / 2, this.canvas.height / 2 - 20);
+    this.ctx.fillText('PAUSED', canvasWidth / 2, canvasHeight / 2 - 20);
 
     this.ctx.font = '16px Arial';
-    this.ctx.fillText('Press SPACE to resume', this.canvas.width / 2, this.canvas.height / 2 + 20);
+    this.ctx.fillText('Press SPACE to resume', canvasWidth / 2, canvasHeight / 2 + 20);
 
     this.ctx.textAlign = 'left';
   }
@@ -302,17 +315,21 @@ export class CanvasRenderer implements IRenderer {
    * Draw game over overlay
    */
   private drawGameOverOverlay(): void {
+    // Get the actual canvas dimensions (accounting for device pixel ratio)
+    const canvasWidth = this.canvas.width / (window.devicePixelRatio || 1);
+    const canvasHeight = this.canvas.height / (window.devicePixelRatio || 1);
+
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     this.ctx.fillStyle = '#F44336';
     this.ctx.font = 'bold 36px Arial';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2 - 40);
+    this.ctx.fillText('GAME OVER', canvasWidth / 2, canvasHeight / 2 - 40);
 
     this.ctx.fillStyle = '#FFF';
     this.ctx.font = '18px Arial';
-    this.ctx.fillText('Press ENTER to restart', this.canvas.width / 2, this.canvas.height / 2 + 20);
+    this.ctx.fillText('Press ENTER to restart', canvasWidth / 2, canvasHeight / 2 + 20);
 
     this.ctx.textAlign = 'left';
   }
@@ -322,15 +339,20 @@ export class CanvasRenderer implements IRenderer {
    */
   public showMainMenu(): void {
     this.clear();
+
+    // Get the actual canvas dimensions (accounting for device pixel ratio)
+    const canvasWidth = this.canvas.width / (window.devicePixelRatio || 1);
+    const canvasHeight = this.canvas.height / (window.devicePixelRatio || 1);
+
     this.ctx.fillStyle = '#FFF';
     this.ctx.font = 'bold 48px Arial';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('SNAKE GAME', this.canvas.width / 2, this.canvas.height / 2 - 60);
+    this.ctx.fillText('SNAKE GAME', canvasWidth / 2, canvasHeight / 2 - 60);
 
     this.ctx.font = '20px Arial';
-    this.ctx.fillText('Press ENTER to start', this.canvas.width / 2, this.canvas.height / 2 - 20);
-    this.ctx.fillText('Use arrow keys to move', this.canvas.width / 2, this.canvas.height / 2 + 10);
-    this.ctx.fillText('Press SPACE to pause', this.canvas.width / 2, this.canvas.height / 2 + 40);
+    this.ctx.fillText('Press ENTER to start', canvasWidth / 2, canvasHeight / 2 - 20);
+    this.ctx.fillText('Use arrow keys to move', canvasWidth / 2, canvasHeight / 2 + 10);
+    this.ctx.fillText('Press SPACE to pause', canvasWidth / 2, canvasHeight / 2 + 40);
 
     this.ctx.textAlign = 'left';
   }
@@ -341,18 +363,18 @@ export class CanvasRenderer implements IRenderer {
   public showGameOver(score: ScoreData): void {
     this.drawGameOverOverlay();
 
+    // Get the actual canvas dimensions (accounting for device pixel ratio)
+    const canvasWidth = this.canvas.width / (window.devicePixelRatio || 1);
+    const canvasHeight = this.canvas.height / (window.devicePixelRatio || 1);
+
     this.ctx.fillStyle = '#FFF';
     this.ctx.font = 'bold 24px Arial';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText(
-      `Final Score: ${score.currentScore}`,
-      this.canvas.width / 2,
-      this.canvas.height / 2 + 60
-    );
+    this.ctx.fillText(`Final Score: ${score.currentScore}`, canvasWidth / 2, canvasHeight / 2 + 60);
 
     if (score.currentScore === score.highScore) {
       this.ctx.fillStyle = '#FFD700';
-      this.ctx.fillText('NEW HIGH SCORE!', this.canvas.width / 2, this.canvas.height / 2 + 90);
+      this.ctx.fillText('NEW HIGH SCORE!', canvasWidth / 2, canvasHeight / 2 + 90);
     }
 
     this.ctx.textAlign = 'left';

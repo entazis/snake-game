@@ -26,6 +26,9 @@ const mockContext = {
   arc: jest.fn(),
   fill: jest.fn(),
   fillText: jest.fn(),
+  setTransform: jest.fn(),
+  save: jest.fn(),
+  restore: jest.fn(),
   strokeStyle: '',
   lineWidth: 0,
   fillStyle: '',
@@ -41,6 +44,11 @@ const mockContext = {
   arc: jest.MockedFunction<
     (x: number, y: number, radius: number, startAngle: number, endAngle: number) => void
   >;
+  setTransform: jest.MockedFunction<
+    (a: number, b: number, c: number, d: number, e: number, f: number) => void
+  >;
+  save: jest.MockedFunction<() => void>;
+  restore: jest.MockedFunction<() => void>;
 };
 
 // Mock document.getElementById
