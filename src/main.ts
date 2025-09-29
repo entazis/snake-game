@@ -232,7 +232,7 @@ class SnakeGame {
       const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
       if (canvas) {
         const container = canvas.parentElement;
-        if (container) {
+        if (container && typeof container.getBoundingClientRect === 'function') {
           const containerRect = container.getBoundingClientRect();
           this.renderer.resize(containerRect.width - 6, containerRect.height - 6); // Account for border
         }

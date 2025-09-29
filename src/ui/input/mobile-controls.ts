@@ -37,9 +37,7 @@ export class MobileControls implements IMobileControls {
     container.innerHTML = `
       <div class="mobile-controls-overlay">
         <div class="mobile-controls-content">
-          <div class="mobile-hint">
-            Swipe to control the snake, tap to pause/resume
-          </div>
+          <!-- Mobile controls overlay - no additional UI needed -->
         </div>
       </div>
     `;
