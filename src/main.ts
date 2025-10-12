@@ -24,6 +24,7 @@ class SnakeGame {
 
   private isInitialized = false;
   private gameConfig = createGameConfig(defaultGameSettings);
+  private resizeTimeout: number | null = null;
 
   constructor() {
     try {
@@ -147,9 +148,15 @@ class SnakeGame {
    * Setup UI event listeners
    */
   private setupUI(): void {
-    // Window resize
+    // Window resize with debouncing
     window.addEventListener('resize', () => {
-      this.handleResize();
+      if (this.resizeTimeout) {
+        clearTimeout(this.resizeTimeout);
+      }
+      this.resizeTimeout = window.setTimeout(() => {
+        this.handleResize();
+        this.resizeTimeout = null;
+      }, 100); // Debounce resize events by 100ms
     });
   }
 
@@ -251,7 +258,23 @@ class SnakeGame {
         const container = canvas.parentElement;
         if (container && typeof container.getBoundingClientRect === 'function') {
           const containerRect = container.getBoundingClientRect();
-          this.renderer.resize(containerRect.width - 6, containerRect.height - 6); // Account for border
+
+          // Get computed styles to account for border and padding
+          const computedStyle = window.getComputedStyle(container);
+          const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0;
+          const borderRight = parseFloat(computedStyle.borderRightWidth) || 0;
+          const borderTop = parseFloat(computedStyle.borderTopWidth) || 0;
+          const borderBottom = parseFloat(computedStyle.borderBottomWidth) || 0;
+
+          const availableWidth = containerRect.width - borderLeft - borderRight;
+          const availableHeight = containerRect.height - borderTop - borderBottom;
+
+          // Ensure minimum size and handle edge cases
+          const minSize = 200;
+          const width = Math.max(availableWidth, minSize);
+          const height = Math.max(availableHeight, minSize);
+
+          this.renderer.resize(width, height);
         }
       }
     } catch (error) {
@@ -294,6 +317,10 @@ class SnakeGame {
    */
   public destroy(): void {
     try {
+      if (this.resizeTimeout) {
+        clearTimeout(this.resizeTimeout);
+        this.resizeTimeout = null;
+      }
       this.gameEngine.stop();
       this.inputHandler.destroy();
       this.mobileControls.destroy();
