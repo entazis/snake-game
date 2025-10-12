@@ -257,24 +257,35 @@ class SnakeGame {
       if (canvas) {
         const container = canvas.parentElement;
         if (container && typeof container.getBoundingClientRect === 'function') {
-          const containerRect = container.getBoundingClientRect();
-
-          // Get computed styles to account for border and padding
+          // Get computed styles to account for border
           const computedStyle = window.getComputedStyle(container);
           const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0;
           const borderRight = parseFloat(computedStyle.borderRightWidth) || 0;
           const borderTop = parseFloat(computedStyle.borderTopWidth) || 0;
           const borderBottom = parseFloat(computedStyle.borderBottomWidth) || 0;
 
-          const availableWidth = containerRect.width - borderLeft - borderRight;
-          const availableHeight = containerRect.height - borderTop - borderBottom;
+          const totalBorderWidth = borderLeft + borderRight;
+          const totalBorderHeight = borderTop + borderBottom;
 
-          // Ensure minimum size and handle edge cases
+          // Calculate available space from viewport
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+
+          // Account for padding and space for controls
+          const maxWidth = Math.min(viewportWidth * 0.9, viewportHeight * 0.9);
+          const maxHeight = Math.min(viewportWidth * 0.9, viewportHeight * 0.9);
+
+          // Calculate canvas size (square)
           const minSize = 200;
-          const width = Math.max(availableWidth, minSize);
-          const height = Math.max(availableHeight, minSize);
+          const maxSize = Math.min(maxWidth - totalBorderWidth, maxHeight - totalBorderHeight);
+          const canvasSize = Math.max(minSize, maxSize);
 
-          this.renderer.resize(width, height);
+          // Resize the canvas via renderer
+          this.renderer.resize(canvasSize, canvasSize);
+
+          // Set container dimensions to exactly match canvas + borders
+          container.style.width = `${canvasSize + totalBorderWidth}px`;
+          container.style.height = `${canvasSize + totalBorderHeight}px`;
         }
       }
     } catch (error) {
