@@ -80,7 +80,7 @@ class SnakeGame {
     });
 
     this.inputHandler.onPauseToggle(() => {
-      this.gameEngine.togglePause();
+      this.handleTapOrPause();
     });
 
     this.inputHandler.onGameStart(() => {
@@ -97,7 +97,7 @@ class SnakeGame {
     });
 
     this.mobileControls.onPauseToggle(() => {
-      this.gameEngine.togglePause();
+      this.handleTapOrPause();
     });
 
     this.mobileControls.onGameStart(() => {
@@ -151,6 +151,23 @@ class SnakeGame {
     window.addEventListener('resize', () => {
       this.handleResize();
     });
+  }
+
+  /**
+   * Handle tap or pause based on game state
+   */
+  private handleTapOrPause(): void {
+    if (!this.isInitialized) return;
+
+    const gameState = this.gameEngine.getState();
+
+    if (gameState === GameState.MENU || gameState === GameState.GAME_OVER) {
+      // Start the game if in menu or game over state
+      this.startGame();
+    } else if (gameState === GameState.PLAYING || gameState === GameState.PAUSED) {
+      // Toggle pause if game is playing or paused
+      this.gameEngine.togglePause();
+    }
   }
 
   /**
