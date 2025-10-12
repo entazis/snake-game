@@ -54,9 +54,9 @@ export class InputHandler implements IInputHandler {
   private bindTouchEvents(): void {
     if (!this.isTouchDevice) return;
 
-    // Use passive: false for touchmove to allow preventDefault
-    document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
-    document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+    // Use passive: false to allow preventDefault and eliminate 300ms tap delay
+    document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+    document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
     document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
   }
 
@@ -114,6 +114,9 @@ export class InputHandler implements IInputHandler {
   private handleTouchStart(event: TouchEvent): void {
     if (this.isDestroyed || event.touches.length === 0) return;
 
+    // Prevent default to eliminate 300ms tap delay
+    event.preventDefault();
+
     const touch = event.touches[0];
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
@@ -153,12 +156,15 @@ export class InputHandler implements IInputHandler {
       Math.abs(deltaY) < this.maxTapDistance &&
       touchDuration < this.maxTapDuration
     ) {
+      // Prevent default to eliminate 300ms tap delay
+      event.preventDefault();
       this.handleTap();
       return;
     }
 
     // Check if it's a swipe
     if (Math.abs(deltaX) > this.minSwipeDistance || Math.abs(deltaY) > this.minSwipeDistance) {
+      event.preventDefault();
       this.handleSwipe(deltaX, deltaY);
     }
   }
