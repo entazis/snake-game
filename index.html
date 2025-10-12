@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Snake Game</title>
     <style>
         * {
@@ -17,10 +17,18 @@
             color: #fff;
             overflow: hidden;
             height: 100vh;
+            height: 100dvh; /* Use dynamic viewport height for better mobile support */
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         .game-container {
@@ -30,6 +38,7 @@
             justify-content: center;
             gap: 20px;
             height: 100vh;
+            height: 100dvh; /* Use dynamic viewport height for better mobile support */
             max-width: 100%;
             width: 100%;
         }
@@ -40,12 +49,13 @@
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
             background: #1a1a1a;
-            flex: 1;
-            max-width: 90vh;
-            max-height: 90vh;
-            min-width: 300px;
-            min-height: 300px;
+            display: inline-block;
+            max-width: min(90vh, 90vw);
+            max-height: min(90vh, 90vw);
+            min-width: 200px;
+            min-height: 200px;
             aspect-ratio: 1;
+            touch-action: manipulation;
         }
 
         #gameCanvas {
@@ -66,6 +76,14 @@
             text-align: center;
             margin-top: 10px;
             opacity: 0.7;
+        }
+
+        .desktop-hint {
+            display: block;
+        }
+
+        .mobile-hint {
+            display: none;
         }
 
 
@@ -91,6 +109,38 @@
         }
 
 
+        /* Mobile Controls Styles */
+        .mobile-controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+
+        .mobile-controls-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 20px;
+            pointer-events: auto;
+        }
+
+        .mobile-controls-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+
         @media (max-width: 768px) {
             .game-container {
                 gap: 15px;
@@ -98,19 +148,61 @@
             }
             
             .game-canvas-container {
-                max-width: 95vw;
-                max-height: 95vw;
-                min-width: 250px;
-                min-height: 250px;
+                max-width: min(95vw, 95vh);
+                max-height: min(95vw, 95vh);
+                min-width: 200px;
+                min-height: 200px;
+            }
+
+            .desktop-hint {
+                display: none;
+            }
+
+            .mobile-hint {
+                display: block;
+            }
+
+            .mobile-controls {
+                display: block;
             }
         }
 
         @media (max-width: 480px) {
             .game-canvas-container {
-                max-width: 90vw;
-                max-height: 90vw;
-                min-width: 200px;
-                min-height: 200px;
+                max-width: min(90vw, 90vh);
+                max-height: min(90vw, 90vh);
+                min-width: 180px;
+                min-height: 180px;
+            }
+
+            .mobile-controls-overlay {
+                padding: 15px;
+            }
+
+            .mobile-controls-content {
+                gap: 15px;
+            }
+
+        }
+
+        /* Handle orientation changes */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .game-container {
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .game-canvas-container {
+                max-width: min(80vh, 80vw);
+                max-height: min(80vh, 80vw);
+            }
+        }
+
+        /* Handle very small screens */
+        @media (max-width: 320px) {
+            .game-canvas-container {
+                min-width: 150px;
+                min-height: 150px;
             }
         }
 
@@ -145,8 +237,11 @@
         </div>
 
         <div class="game-controls">
-            <div class="game-hint">
+            <div class="game-hint desktop-hint">
                 Use arrow keys to control the snake, Space to pause, Enter to start, Escape to reset
+            </div>
+            <div class="game-hint mobile-hint">
+                Swipe to control the snake, tap to pause/resume
             </div>
         </div>
     </div>

@@ -93,9 +93,23 @@ npm run dev
 
 ### Mobile
 
-- **Swipe** - Move snake in swipe direction
-- **Tap** - Pause/Resume
-- **On-screen buttons** - Directional controls
+The game provides intuitive mobile support with gesture-based controls:
+
+#### Touch Gestures
+
+- **Swipe Up** - Move snake up
+- **Swipe Down** - Move snake down  
+- **Swipe Left** - Move snake left
+- **Swipe Right** - Move snake right
+- **Tap** - Pause/Resume game
+
+#### Mobile Features
+
+- **Responsive Design** - Adapts to different screen sizes
+- **Touch Optimization** - Prevents accidental scrolling during gameplay
+- **Gesture-Based Controls** - Clean, button-free interface
+- **Auto-Detection** - Automatically shows mobile controls on touch devices
+- **Visual Hints** - On-screen instructions for mobile users
 
 ## Game Features
 

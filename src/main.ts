@@ -9,12 +9,14 @@ import { GameEngine } from './core/services/game-engine';
 import { ScoreManager } from './core/services/score-manager';
 import { Storage } from './core/services/storage';
 import { InputHandler } from './ui/input/input-handler';
+import { MobileControls } from './ui/input/mobile-controls';
 import { CanvasRenderer } from './ui/renderer/canvas-renderer';
 import { EventEmitter } from './utils/event-emitter';
 
 class SnakeGame {
   private readonly gameEngine!: GameEngine;
   private readonly inputHandler!: InputHandler;
+  private readonly mobileControls!: MobileControls;
   private readonly renderer!: CanvasRenderer;
   private readonly eventEmitter!: EventEmitter<GameEvents>;
   private readonly storage!: Storage;
@@ -22,6 +24,7 @@ class SnakeGame {
 
   private isInitialized = false;
   private gameConfig = createGameConfig(defaultGameSettings);
+  private resizeTimeout: number | null = null;
 
   constructor() {
     try {
@@ -30,6 +33,7 @@ class SnakeGame {
       this.eventEmitter = new EventEmitter<GameEvents>();
       this.gameEngine = new GameEngine(this.gameConfig, this.scoreManager, this.eventEmitter);
       this.inputHandler = new InputHandler();
+      this.mobileControls = new MobileControls();
       this.renderer = new CanvasRenderer('gameCanvas', this.gameConfig.gridSize);
 
       this.setupEventListeners();
@@ -49,6 +53,11 @@ class SnakeGame {
       this.updateScoreDisplay();
       this.updateUI(); // Ensure UI state is correct on initialization
       this.showGameContainer();
+
+      // Show mobile controls if on touch device
+      if (this.inputHandler.isTouchDeviceSupported()) {
+        this.mobileControls.show();
+      }
 
       // Resize canvas after container is shown, then show main menu
       setTimeout(() => {
@@ -72,7 +81,7 @@ class SnakeGame {
     });
 
     this.inputHandler.onPauseToggle(() => {
-      this.gameEngine.togglePause();
+      this.handleTapOrPause();
     });
 
     this.inputHandler.onGameStart(() => {
@@ -80,6 +89,23 @@ class SnakeGame {
     });
 
     this.inputHandler.onGameReset(() => {
+      this.resetGame();
+    });
+
+    // Mobile controls events
+    this.mobileControls.onDirectionChange((direction) => {
+      this.gameEngine.changeDirection(direction);
+    });
+
+    this.mobileControls.onPauseToggle(() => {
+      this.handleTapOrPause();
+    });
+
+    this.mobileControls.onGameStart(() => {
+      this.startGame();
+    });
+
+    this.mobileControls.onGameReset(() => {
       this.resetGame();
     });
 
@@ -122,10 +148,33 @@ class SnakeGame {
    * Setup UI event listeners
    */
   private setupUI(): void {
-    // Window resize
+    // Window resize with debouncing
     window.addEventListener('resize', () => {
-      this.handleResize();
+      if (this.resizeTimeout) {
+        clearTimeout(this.resizeTimeout);
+      }
+      this.resizeTimeout = window.setTimeout(() => {
+        this.handleResize();
+        this.resizeTimeout = null;
+      }, 100); // Debounce resize events by 100ms
     });
+  }
+
+  /**
+   * Handle tap or pause based on game state
+   */
+  private handleTapOrPause(): void {
+    if (!this.isInitialized) return;
+
+    const gameState = this.gameEngine.getState();
+
+    if (gameState === GameState.MENU || gameState === GameState.GAME_OVER) {
+      // Start the game if in menu or game over state
+      this.startGame();
+    } else if (gameState === GameState.PLAYING || gameState === GameState.PAUSED) {
+      // Toggle pause if game is playing or paused
+      this.gameEngine.togglePause();
+    }
   }
 
   /**
@@ -207,9 +256,36 @@ class SnakeGame {
       const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
       if (canvas) {
         const container = canvas.parentElement;
-        if (container) {
-          const containerRect = container.getBoundingClientRect();
-          this.renderer.resize(containerRect.width - 6, containerRect.height - 6); // Account for border
+        if (container && typeof container.getBoundingClientRect === 'function') {
+          // Get computed styles to account for border
+          const computedStyle = window.getComputedStyle(container);
+          const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0;
+          const borderRight = parseFloat(computedStyle.borderRightWidth) || 0;
+          const borderTop = parseFloat(computedStyle.borderTopWidth) || 0;
+          const borderBottom = parseFloat(computedStyle.borderBottomWidth) || 0;
+
+          const totalBorderWidth = borderLeft + borderRight;
+          const totalBorderHeight = borderTop + borderBottom;
+
+          // Calculate available space from viewport
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+
+          // Account for padding and space for controls
+          const maxWidth = Math.min(viewportWidth * 0.9, viewportHeight * 0.9);
+          const maxHeight = Math.min(viewportWidth * 0.9, viewportHeight * 0.9);
+
+          // Calculate canvas size (square)
+          const minSize = 200;
+          const maxSize = Math.min(maxWidth - totalBorderWidth, maxHeight - totalBorderHeight);
+          const canvasSize = Math.max(minSize, maxSize);
+
+          // Resize the canvas via renderer
+          this.renderer.resize(canvasSize, canvasSize);
+
+          // Set container dimensions to exactly match canvas + borders
+          container.style.width = `${canvasSize + totalBorderWidth}px`;
+          container.style.height = `${canvasSize + totalBorderHeight}px`;
         }
       }
     } catch (error) {
@@ -252,8 +328,13 @@ class SnakeGame {
    */
   public destroy(): void {
     try {
+      if (this.resizeTimeout) {
+        clearTimeout(this.resizeTimeout);
+        this.resizeTimeout = null;
+      }
       this.gameEngine.stop();
       this.inputHandler.destroy();
+      this.mobileControls.destroy();
       this.renderer.destroy();
       this.eventEmitter.removeAllListeners();
     } catch (error) {
