@@ -8,6 +8,7 @@ import { GameState } from './core/interfaces/game.types';
 import { GameEngine } from './core/services/game-engine';
 import { ScoreManager } from './core/services/score-manager';
 import { Storage } from './core/services/storage';
+import { trackPageVisit } from './metrics/metrics-client';
 import { InputHandler } from './ui/input/input-handler';
 import { MobileControls } from './ui/input/mobile-controls';
 import { CanvasRenderer } from './ui/renderer/canvas-renderer';
@@ -346,6 +347,7 @@ class SnakeGame {
 // Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   try {
+    void trackPageVisit();
     const game = new SnakeGame();
 
     // Make game available globally for debugging
